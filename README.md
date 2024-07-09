@@ -1,70 +1,158 @@
-# Getting Started with Create React App
+# Atomic Blog README
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+Atomic Blog is a simple React application for managing blog posts. It includes functionalities for adding, searching, and archiving posts, as well as toggling a fake dark mode. This project utilizes React hooks such as `useState` and `useEffect`, and employs a context provider for state management.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- Toggle fake dark mode.
+- Add new posts.
+- Search through posts.
+- Clear all posts.
+- Archive posts and add them back to the main list.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Installation
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-username/atomic-blog.git
+   cd atomic-blog
+   ```
 
-### `npm test`
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. **Start the application**:
+   ```bash
+   npm start
+   ```
 
-### `npm run build`
+## File Structure
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+.
+├── src
+│   ├── App.js
+│   ├── PostProvider.js
+│   └── index.js
+├── public
+│   └── index.html
+└── package.json
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Components
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### `App`
+The main component that renders the entire application. It includes the header, main content area, archive, and footer. It also manages the fake dark mode.
 
-### `npm run eject`
+### `Header`
+Contains the application title, the number of posts, search functionality, and a button to clear all posts.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### `Main`
+Includes the form to add a new post and the list of current posts.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### `Archive`
+Shows archived posts and allows adding them back to the main list.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### `Footer`
+Displays the footer of the application.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Usage
 
-## Learn More
+### Toggling Fake Dark Mode
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Click the button with the sun/moon icon to toggle between fake dark mode and light mode. This changes the class on the `documentElement`.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Adding a Post
 
-### Code Splitting
+1. Fill out the "Post title" and "Post body" fields.
+2. Click the "Add post" button.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Searching Posts
 
-### Analyzing the Bundle Size
+Type into the search input field to filter posts based on their titles.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Clearing Posts
 
-### Making a Progressive Web App
+Click the "Clear posts" button to remove all posts from the list.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Viewing and Adding Archived Posts
 
-### Advanced Configuration
+1. Click the "Show archive posts" button to view archived posts.
+2. Click the "Add as new post" button next to an archived post to add it to the main list.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Context Provider
 
-### Deployment
+### `PostProvider`
+Handles the state management for posts using React's Context API. It provides functions to add, clear, and search posts.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### `usePosts`
+A custom hook to consume the post context in various components.
 
-### `npm run build` fails to minify
+## Dependencies
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- React
+- faker (for generating random posts)
+
+## Example Code
+
+Here's a brief look at how the `PostProvider` and `usePosts` are used in the application:
+
+### `PostProvider.js`
+```javascript
+import { createContext, useContext, useState } from 'react';
+import faker from 'faker';
+
+const PostContext = createContext();
+
+export function PostProvider({ children }) {
+  const [posts, setPosts] = useState([]);
+
+  function createRandomPost() {
+    return {
+      title: `${faker.hacker.adjective()} ${faker.hacker.noun()}`,
+      body: faker.hacker.phrase(),
+    };
+  }
+
+  function onAddPost(post) {
+    setPosts([...posts, post]);
+  }
+
+  function onClearPosts() {
+    setPosts([]);
+  }
+
+  const value = {
+    posts,
+    onAddPost,
+    onClearPosts,
+  };
+
+  return <PostContext.Provider value={value}>{children}</PostContext.Provider>;
+}
+
+export function usePosts() {
+  return useContext(PostContext);
+}
+```
+
+### Usage in `App.js`
+```javascript
+import { PostProvider, usePosts } from './PostProvider';
+
+function App() {
+  return (
+    <PostProvider>
+      <Header />
+      <Main />
+      <Archive />
+      <Footer />
+    </PostProvider>
+  );
+}
+```
+
